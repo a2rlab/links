@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A2R LAB</title>
+<meta name="description" content="Autonomous & Assistive Robotics Lab, University of Debrecen Hungary">
+<link rel="icon" href="https://ugc.production.linktr.ee/c7b1a284-d27b-432b-8c68-59e976229a0b_logo-small.png?io=true&size=avatar-v3_0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1f2a44; --bg2:#0f1626; --btn:#ffffff; --btnText:#1f2a44; --text:#ffffff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    color:var(--text);
+    background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%) fixed;
+    padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+  }
+  main{max-width:680px;margin:0 auto;padding:48px 0 32px;text-align:center}
+  .avatar{width:96px;height:96px;border-radius:50%;object-fit:cover;background:#fff2;display:block;margin:0 auto 16px}
+  h1{font-size:20px;font-weight:700;margin:0 0 6px}
+  .bio{font-size:15px;line-height:1.45;opacity:.85;margin:0 auto 18px;max-width:46ch}
+  .socials{display:flex;justify-content:center;gap:14px;margin:0 0 28px}
+  .socials a{color:var(--text);width:34px;height:34px;display:grid;place-items:center;border-radius:50%;transition:transform .15s}
+  .socials a:hover{transform:scale(1.12)}
+  .socials svg{width:26px;height:26px}
+  .links{display:flex;flex-direction:column;gap:14px}
+  .link{
+    position:relative;display:flex;align-items:center;justify-content:center;
+    min-height:58px;padding:14px 56px;border-radius:999px;
+    background:var(--btn);color:var(--btnText);text-decoration:none;
+    font-weight:600;font-size:15px;line-height:1.3;
+    box-shadow:0 4px 0 #0003;transition:transform .12s, box-shadow .12s;
+  }
+  .link:hover{transform:translateY(-2px);box-shadow:0 6px 0 #0003}
+  .link:active{transform:translateY(2px);box-shadow:0 1px 0 #0003}
+  .link:focus-visible,.socials a:focus-visible{outline:3px solid #fff;outline-offset:3px}
+  .link .ic{position:absolute;left:14px;width:32px;height:32px;display:grid;place-items:center}
+  .link .ic svg,.link .ic img{width:24px;height:24px;border-radius:6px;object-fit:cover}
+  .link small{display:block;font-weight:400;font-size:12.5px;opacity:.7;margin-top:3px}
+  .section{font-weight:700;font-size:16px;margin:18px 0 2px}
+  .msg{opacity:.75;padding:24px}
+  footer{margin-top:40px;font-size:12px;opacity:.55}
+  footer a{color:inherit}
+  .skeleton{height:58px;border-radius:999px;background:#ffffff22;animation:p 1.2s infinite ease-in-out}
+  @keyframes p{50%{opacity:.4}}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <img class="avatar" id="avatar" alt="A2R LAB logo" src="https://ugc.production.linktr.ee/c7b1a284-d27b-432b-8c68-59e976229a0b_logo-small.png?io=true&size=avatar-v3_0">
+  <h1 id="name">A2R LAB</h1>
+  <p class="bio" id="bio">Autonomous &amp; Assistive Robotics Lab, University of Debrecen Hungary</p>
+  <nav class="socials" id="socials" aria-label="Social links"></nav>
+  <div class="links" id="links">
+    <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+  </div>
+  <footer>© <span id="yr"></span> A2R LAB · University of Debrecen</footer>
+</main>
+
+<script src="config.js"></script>
+<script src="icons.js"></script>
+<script>
+const CACHE_KEY = 'a2r-links-cache';
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+function esc(s){return String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function render(data){
+  const s = data.settings || {};
+  const root = document.documentElement.style;
+  if (s.bg) root.setProperty('--bg', s.bg);
+  if (s.bg2) root.setProperty('--bg2', s.bg2);
+  if (s.button) root.setProperty('--btn', s.button);
+  if (s.buttonText) root.setProperty('--btnText', s.buttonText);
+  if (s.text) root.setProperty('--text', s.text);
+  if (s.name){ document.getElementById('name').textContent = s.name; document.title = s.name; }
+  if (s.bio) document.getElementById('bio').textContent = s.bio;
+  if (s.avatar) document.getElementById('avatar').src = s.avatar;
+
+  const links = (data.links || []).filter(l => l.active !== false);
+  document.getElementById('socials').innerHTML = links.filter(l => l.type === 'social').map(l =>
+    `<a href="${esc(l.url)}" target="_blank" rel="noopener" aria-label="${esc(l.title)}" title="${esc(l.title)}">${A2R_iconFor(l) || esc(l.title[0])}</a>`
+  ).join('');
+
+  const html = links.filter(l => l.type !== 'social').map(l => {
+    if (l.type === 'header') return `<h2 class="section">${esc(l.title)}</h2>`;
+    const ic = A2R_iconFor(l);
+    return `<a class="link" href="${esc(l.url)}" target="_blank" rel="noopener">
+      ${ic ? `<span class="ic">${ic}</span>` : ''}
+      <span>${esc(l.title)}${l.description ? `<small>${esc(l.description)}</small>` : ''}</span>
+    </a>`;
+  }).join('');
+  document.getElementById('links').innerHTML = html || '<p class="msg">No links yet.</p>';
+}
+
+// Show cached copy instantly, then refresh from Google Sheet
+try { const c = localStorage.getItem(CACHE_KEY); if (c) render(JSON.parse(c)); } catch(e){}
+
+fetch(window.A2R_API_URL)
+  .then(r => r.json())
+  .then(d => { if (!d.ok) throw new Error(d.error); render(d); try{localStorage.setItem(CACHE_KEY, JSON.stringify(d));}catch(e){} })
+  .catch(err => {
+    console.error(err);
+    if (!localStorage.getItem(CACHE_KEY))
+      document.getElementById('links').innerHTML = '<p class="msg">Links could not be loaded. Check the API URL in config.js.</p>';
+  });
+</script>
+</body>
+</html>

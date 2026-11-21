@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>A2R LAB · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#1f2a44;--muted:#6b7385;--line:#e3e6ee;--bg:#f5f6fa;--card:#fff;--accent:#2d5bff;--danger:#d93838;--ok:#1a9b5a}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--bg);font-size:14px}
+  button,input,select,textarea{font:inherit}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
+  header{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px}
+  header h1{font-size:20px;margin:0}
+  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:500}
+  .btn:hover{border-color:#c5cad6}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.danger{color:var(--danger)}
+  .btn.sm{padding:5px 9px;font-size:13px}
+  .btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
+  @media (max-width:900px){.grid{grid-template-columns:1fr}.preview{display:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px}
+  .card h2{font-size:15px;margin:0;padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+  .row:last-child{border-bottom:0}
+  .row.hidden{opacity:.5}
+  .row.header{background:#fafbfd}
+  .handle{display:flex;flex-direction:column;gap:2px}
+  .handle button{border:0;background:none;cursor:pointer;color:var(--muted);padding:0 4px;line-height:1;font-size:12px}
+  .handle button:disabled{opacity:.25;cursor:default}
+  .tag{font-size:11px;padding:2px 7px;border-radius:999px;background:#eef1f7;color:var(--muted);white-space:nowrap}
+  .tag.social{background:#efe9ff;color:#6a3fd8}.tag.header{background:#fff3df;color:#a8630b}
+  .info{flex:1;min-width:0}
+  .info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .info a{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-decoration:none}
+  .actions{display:flex;gap:6px}
+  .switch{position:relative;width:34px;height:20px;flex:none}
+  .switch input{opacity:0;width:0;height:0}
+  .switch span{position:absolute;inset:0;background:#cfd4df;border-radius:999px;cursor:pointer;transition:.15s}
+  .switch span:before{content:"";position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s}
+  .switch input:checked+span{background:var(--ok)}
+  .switch input:checked+span:before{transform:translateX(14px)}
+  .empty{padding:30px;text-align:center;color:var(--muted)}
+  .preview iframe{width:100%;height:640px;border:0;border-radius:0 0 12px 12px}
+  dialog{border:0;border-radius:14px;padding:0;width:min(520px,94vw);box-shadow:0 20px 60px #0004}
+  dialog::backdrop{background:#0f162688}
+  form.f{padding:20px;display:grid;gap:12px}
+  form.f h3{margin:0 0 4px}
+  label{display:grid;gap:5px;font-weight:500;font-size:13px}
+  input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;background:#fff}
+  textarea{resize:vertical;min-height:60px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+  .hint{font-size:12px;color:var(--muted);font-weight:400}
+  .login{max-width:360px;margin:12vh auto;padding:28px}
+  .login h1{font-size:20px;margin:0 0 6px}
+  .login p{color:var(--muted);margin:0 0 18px}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none;z-index:99}
+  .toast.show{opacity:1}.toast.err{background:var(--danger)}
+  .busy{pointer-events:none;opacity:.6}
+  .colors{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .colors input[type=color]{height:38px;padding:3px}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<section id="loginView" class="card login" hidden>
+  <h1>A2R LAB admin</h1>
+  <p>Enter the admin password to manage links.</p>
+  <form id="loginForm" class="f" style="padding:0">
+    <label>Password <input type="password" id="pw" autocomplete="current-password" required></label>
+    <button class="btn primary" type="submit">Sign in</button>
+  </form>
+</section>
+
+<!-- Dashboard -->
+<div id="appView" class="wrap" hidden>
+  <header>
+    <h1>A2R LAB links</h1>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn" href="index.html" target="_blank">View page</a>
+      <button class="btn" id="settingsBtn">Profile &amp; colors</button>
+      <button class="btn primary" id="addBtn">Add link</button>
+      <button class="btn" id="logoutBtn">Sign out</button>
+    </div>
+  </header>
+  <div class="grid">
+    <div class="card">
+      <h2>Links <span class="hint" id="count"></span></h2>
+      <div id="list"><div class="empty">Loading…</div></div>
+    </div>
+    <div class="card preview">
+      <h2>Live preview <button class="btn sm" id="reloadPrev">Refresh</button></h2>
+      <iframe id="prev" src="index.html" title="Public page preview"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- Link editor -->
+<dialog id="linkDlg">
+  <form class="f" id="linkForm" method="dialog">
+    <h3 id="dlgTitle">Add link</h3>
+    <input type="hidden" name="id">
+    <label>Type
+      <select name="type">
+        <option value="link">Button link</option>
+        <option value="social">Social icon (top row)</option>
+        <option value="header">Section header</option>
+      </select>
+    </label>
+    <label>Title <input name="title" required></label>
+    <label class="urlField">URL <input name="url" placeholder="https://… or mailto:…"></label>
+    <label class="descField">Description <span class="hint">optional, small text under the title</span>
+      <textarea name="description" rows="2"></textarea></label>
+    <div class="two">
+      <label class="iconField">Icon
+        <select name="icon">
+          <option value="">Auto / none</option>
+          <option>instagram</option><option>linkedin</option><option>email</option>
+          <option>youtube</option><option>github</option><option>facebook</option><option>x</option>
+          <option>web</option><option>form</option><option>calendar</option><option>robot</option>
+        </select>
+      </label>
+      <label>Visible
+        <select name="active"><option value="true">Shown</option><option value="false">Hidden</option></select>
+      </label>
+    </div>
+    <div class="foot">
+      <button class="btn" type="button" id="cancelLink">Cancel</button>
+      <button class="btn primary" type="submit" id="saveLink">Save link</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Settings editor -->
+<dialog id="setDlg">
+  <form class="f" id="setForm" method="dialog">
+    <h3>Profile &amp; colors</h3>
+    <label>Name <input name="name"></label>
+    <label>Bio <textarea name="bio" rows="2"></textarea></label>
+    <label>Avatar image URL <input name="avatar"></label>
+    <div class="colors">
+      <label>Background top <input type="color" name="bg"></label>
+      <label>Background bottom <input type="color" name="bg2"></label>
+      <label>Button <input type="color" name="button"></label>
+      <label>Button text <input type="color" name="buttonText"></label>
+      <label>Page text <input type="color" name="text"></label>
+    </div>
+    <div class="foot">
+      <button class="btn" type="button" id="cancelSet">Cancel</button>
+      <button class="btn primary" type="submit">Save profile</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script>
+const API = window.A2R_API_URL;
+const PW_KEY = 'a2r-admin-pw';
+let password = sessionStorage.getItem(PW_KEY) || '';
+let links = [], settings = {};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function toast(msg, err){ const t=$('#toast'); t.textContent=msg; t.className='toast show'+(err?' err':''); clearTimeout(t._h); t._h=setTimeout(()=>t.className='toast',2600); }
+
+// text/plain avoids a CORS preflight, which Apps Script can't answer
+async function api(action, payload={}){
+  document.body.classList.add('busy');
+  try{
+    const r = await fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({password, action, ...payload})});
+    const d = await r.json();
+    if(!d.ok) throw new Error(d.error || 'Request failed');
+    return d;
+  } finally { document.body.classList.remove('busy'); }
+}
+
+function show(view){ $('#loginView').hidden = view!=='login'; $('#appView').hidden = view!=='app'; }
+
+async function load(){
+  try{
+    const d = await api('list');
+    links = d.links; settings = d.settings; render(); show('app');
+  }catch(e){
+    if(/password/i.test(e.message)){ sessionStorage.removeItem(PW_KEY); password=''; show('login'); toast(e.message,true); }
+    else { show('app'); $('#list').innerHTML = `<div class="empty">${esc(e.message)}<br>Check the API URL in config.js.</div>`; }
+  }
+}
+
+function render(){
+  $('#count').textContent = `${links.length} items`;
+  if(!links.length){ $('#list').innerHTML = '<div class="empty">No links yet. Use “Add link” to create the first one.</div>'; return; }
+  $('#list').innerHTML = links.map((l,i)=>`
+    <div class="row ${l.type} ${l.active?'':'hidden'}" data-id="${esc(l.id)}">
+      <div class="handle">
+        <button data-act="up" ${i===0?'disabled':''} aria-label="Move up">▲</button>
+        <button data-act="down" ${i===links.length-1?'disabled':''} aria-label="Move down">▼</button>
+      </div>
+      <span class="tag ${l.type}">${l.type==='link'?'button':l.type}</span>
+      <div class="info"><b>${esc(l.title)}</b>${l.url?`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.url)}</a>`:''}</div>
+      <label class="switch" title="Show / hide"><input type="checkbox" data-act="toggle" ${l.active?'checked':''}><span></span></label>
+      <div class="actions">
+        <button class="btn sm" data-act="edit">Edit</button>
+        <button class="btn sm danger" data-act="del">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+function refreshPreview(){ try{ $('#prev').contentWindow.localStorage.removeItem('a2r-links-cache'); }catch(e){} $('#prev').src = 'index.html?t='+Date.now(); }
+
+$('#list').addEventListener('click', async e=>{
+  const btn = e.target.closest('[data-act]'); if(!btn) return;
+  const id = btn.closest('.row').dataset.id;
+  const i = links.findIndex(l=>l.id===id); const l = links[i];
+  const act = btn.dataset.act;
+  try{
+    if(act==='edit') openLink(l);
+    if(act==='del'){
+      if(!confirm(`Delete “${l.title}”? This cannot be undone.`)) return;
+      await api('delete',{id}); links.splice(i,1); render(); toast('Link deleted'); refreshPreview();
+    }
+    if(act==='up'||act==='down'){
+      const j = act==='up'?i-1:i+1;
+      [links[i],links[j]]=[links[j],links[i]]; render();
+      await api('reorder',{ids:links.map(x=>x.id)}); refreshPreview();
+    }
+    if(act==='toggle'){
+      l.active = btn.checked;
+      await api('update',{link:l}); render(); toast(l.active?'Link shown':'Link hidden'); refreshPreview();
+    }
+  }catch(err){ toast(err.message,true); load(); }
+});
+
+// ----- link dialog
+const lf = $('#linkForm');
+function syncFields(){
+  const t = lf.type.value;
+  lf.querySelector('.urlField').hidden = t==='header';
+  lf.querySelector('.descField').hidden = t!=='link';
+  lf.querySelector('.iconField').hidden = t==='header';
+}
+lf.type.addEventListener('change', syncFields);
+function openLink(l){
+  lf.reset();
+  $('#dlgTitle').textContent = l ? 'Edit link' : 'Add link';
+  const v = l || {type:'link',active:true};
+  ['id','type','title','url','description','icon'].forEach(k=> lf[k].value = v[k] ?? '');
+  lf.active.value = String(v.active!==false);
+  syncFields(); $('#linkDlg').showModal(); lf.title.focus();
+}
+$('#addBtn').onclick = ()=>openLink(null);
+$('#cancelLink').onclick = ()=>$('#linkDlg').close();
+lf.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const link = Object.fromEntries(new FormData(lf));
+  link.active = link.active==='true';
+  if(link.type!=='header' && !link.url){ toast('URL is required',true); return; }
+  try{
+    if(link.id){
+      const old = links.find(x=>x.id===link.id); link.order = old.order;
+      await api('update',{link}); Object.assign(old, link); toast('Link saved');
+    } else {
+      delete link.id; const d = await api('create',{link}); links.push(d.link); toast('Link added');
+    }
+    $('#linkDlg').close(); render(); refreshPreview();
+  }catch(err){ toast(err.message,true); }
+});
+
+// ----- settings dialog
+const sf = $('#setForm');
+const defaults = {bg:'#1f2a44',bg2:'#0f1626',button:'#ffffff',buttonText:'#1f2a44',text:'#ffffff'};
+$('#settingsBtn').onclick = ()=>{
+  ['name','bio','avatar','bg','bg2','button','buttonText','text'].forEach(k=> sf[k].value = settings[k] || defaults[k] || '');
+  $('#setDlg').showModal();
+};
+$('#cancelSet').onclick = ()=>$('#setDlg').close();
+sf.addEventListener('submit', async e=>{
+  e.preventDefault();
+  try{ const d = await api('settings',{settings:Object.fromEntries(new FormData(sf))}); settings=d.settings;
+    $('#setDlg').close(); toast('Profile saved'); refreshPreview(); }
+  catch(err){ toast(err.message,true); }
+});
+
+// ----- auth
+$('#loginForm').addEventListener('submit', e=>{ e.preventDefault(); password=$('#pw').value; sessionStorage.setItem(PW_KEY,password); load(); });
+$('#logoutBtn').onclick = ()=>{ sessionStorage.removeItem(PW_KEY); password=''; show('login'); };
+$('#reloadPrev').onclick = refreshPreview;
+
+password ? load() : show('login');
+</script>
+</body>
+</html>
