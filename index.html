@@ -4,111 +4,252 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>A2R LAB</title>
-<meta name="description" content="Autonomous & Assistive Robotics Lab, University of Debrecen Hungary">
+<meta name="description" content="Autonomous and assistive robotics lab, University of Debrecen">
+<meta name="theme-color" content="#26215C">
 <link rel="icon" href="https://ugc.production.linktr.ee/c7b1a284-d27b-432b-8c68-59e976229a0b_logo-small.png?io=true&size=avatar-v3_0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  // Apply saved theme before paint to avoid a flash
+  (function () {
+    try {
+      var t = localStorage.getItem('a2r-theme');
+      if (!t) { var c = JSON.parse(localStorage.getItem('a2r-cache') || '{}'); t = c.settings && c.settings.theme; }
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  })();
+</script>
 <style>
   :root{
-    --bg:#1f2a44; --bg2:#0f1626; --btn:#ffffff; --btnText:#1f2a44; --text:#ffffff;
+    --bg:#26215C; --panel:#3C3489; --line:#534AB7; --tx:#EEEDFE; --mut:#AFA9EC; --hd:#CECBF6; --faint:#534AB7;
+    color-scheme:dark;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:#F1EFE8; --panel:#FFFFFF; --line:#D3D1C7; --tx:#26215C; --mut:#5F5E5A; --hd:#534AB7; --faint:#B4B2A9;
+      color-scheme:light;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#F1EFE8; --panel:#FFFFFF; --line:#D3D1C7; --tx:#26215C; --mut:#5F5E5A; --hd:#534AB7; --faint:#B4B2A9;
+    color-scheme:light;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%}
+  html{-webkit-text-size-adjust:100%}
   body{
-    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    color:var(--text);
-    background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%) fixed;
-    padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+    margin:0; min-height:100vh; background:var(--bg); color:var(--tx);
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; font-size:15px; line-height:1.4;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    transition:background-color .2s;
   }
-  main{max-width:680px;margin:0 auto;padding:48px 0 32px;text-align:center}
-  .avatar{width:96px;height:96px;border-radius:50%;object-fit:cover;background:#fff2;display:block;margin:0 auto 16px}
-  h1{font-size:20px;font-weight:700;margin:0 0 6px}
-  .bio{font-size:15px;line-height:1.45;opacity:.85;margin:0 auto 18px;max-width:46ch}
-  .socials{display:flex;justify-content:center;gap:14px;margin:0 0 28px}
-  .socials a{color:var(--text);width:34px;height:34px;display:grid;place-items:center;border-radius:50%;transition:transform .15s}
-  .socials a:hover{transform:scale(1.12)}
-  .socials svg{width:26px;height:26px}
-  .links{display:flex;flex-direction:column;gap:14px}
-  .link{
-    position:relative;display:flex;align-items:center;justify-content:center;
-    min-height:58px;padding:14px 56px;border-radius:999px;
-    background:var(--btn);color:var(--btnText);text-decoration:none;
-    font-weight:600;font-size:15px;line-height:1.3;
-    box-shadow:0 4px 0 #0003;transition:transform .12s, box-shadow .12s;
+  a{color:inherit}
+  .wrap{max-width:1080px;margin:0 auto}
+
+  /* Header */
+  header{display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid var(--line)}
+  .avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#EEEDFE;flex:none}
+  .who{flex:1;min-width:0}
+  .who h1{font-size:17px;font-weight:600;margin:0}
+  .who p{margin:2px 0 0;color:var(--mut);font-size:13px}
+  .socials{display:flex;gap:4px}
+  .socials a,.theme-btn{
+    width:36px;height:36px;display:grid;place-items:center;border-radius:50%;color:var(--hd);text-decoration:none;font-size:20px
   }
-  .link:hover{transform:translateY(-2px);box-shadow:0 6px 0 #0003}
-  .link:active{transform:translateY(2px);box-shadow:0 1px 0 #0003}
-  .link:focus-visible,.socials a:focus-visible{outline:3px solid #fff;outline-offset:3px}
-  .link .ic{position:absolute;left:14px;width:32px;height:32px;display:grid;place-items:center}
-  .link .ic svg,.link .ic img{width:24px;height:24px;border-radius:6px;object-fit:cover}
-  .link small{display:block;font-weight:400;font-size:12.5px;opacity:.7;margin-top:3px}
-  .section{font-weight:700;font-size:16px;margin:18px 0 2px}
-  .msg{opacity:.75;padding:24px}
-  footer{margin-top:40px;font-size:12px;opacity:.55}
-  footer a{color:inherit}
-  .skeleton{height:58px;border-radius:999px;background:#ffffff22;animation:p 1.2s infinite ease-in-out}
-  @keyframes p{50%{opacity:.4}}
+  .socials a:hover{background:var(--panel)}
+  .theme-btn{border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:18px;color:var(--tx)}
+  .theme-btn span{display:none}
+  @media (max-width:520px){ header{flex-wrap:wrap} .socials{order:3;width:100%;justify-content:flex-start;margin-left:56px} }
+
+  /* Layout */
+  main{display:grid;gap:22px;padding:18px 16px 8px}
+  @media (min-width:900px){
+    main{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:28px;padding:28px 24px 8px;align-items:start}
+    header{padding:18px 24px}
+    .theme-btn{width:auto;border-radius:999px;padding:0 14px;gap:6px;display:flex;align-items:center;font-size:13px}
+    .theme-btn span{display:inline}
+  }
+  .col{display:grid;gap:22px;align-content:start}
+  h2{font-size:14px;font-weight:600;color:var(--hd);margin:0 0 10px}
+
+  /* Bento tiles */
+  .bento{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:82px;gap:10px;grid-auto-flow:dense}
+  @media (min-width:560px){ .bento{grid-template-columns:repeat(3,minmax(0,1fr))} }
+  .tile{
+    border-radius:18px;padding:12px;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between;gap:4px;
+    background:var(--c-bg);color:var(--c-tx);min-width:0;transition:transform .12s ease;
+  }
+  .tile:hover{transform:translateY(-2px)}
+  .tile:active{transform:scale(.98)}
+  .tile i{font-size:22px}
+  .tile b{font-weight:600;font-size:14px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .tile small{color:var(--c-sub);font-size:12.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .tile.tall{grid-row:span 2}
+  .tile.wide{grid-column:span 2;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px}
+  .tile.wide i{font-size:28px}
+  .tile.small small{display:none}
+
+  /* Videos: swipe row on mobile, list on desktop */
+  .videos{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}
+  .videos::-webkit-scrollbar{display:none}
+  .video{
+    flex:0 0 72%;max-width:280px;scroll-snap-align:start;border-radius:16px;overflow:hidden;text-decoration:none;
+    background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column
+  }
+  .thumb{position:relative;aspect-ratio:16/9;background:#3C3489 center/cover no-repeat}
+  .thumb i{position:absolute;inset:0;margin:auto;width:40px;height:40px;border-radius:50%;background:#E24B4A;color:#FCEBEB;display:grid;place-items:center;font-size:18px}
+  .video b{font-weight:600;font-size:13.5px;padding:10px 12px}
+  @media (min-width:900px){
+    .videos{flex-direction:column;overflow:visible;margin:0;padding:0}
+    .video{flex:none;max-width:none;flex-direction:row;align-items:center}
+    .thumb{width:120px;flex:none}
+    .thumb i{width:30px;height:30px;font-size:14px}
+  }
+
+  /* List sections */
+  details.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  details.panel summary{list-style:none;cursor:pointer;padding:12px 14px;font-weight:600;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+  details.panel summary::-webkit-details-marker{display:none}
+  details.panel summary i{transition:transform .15s;color:var(--mut)}
+  details.panel[open] summary i{transform:rotate(180deg)}
+  .item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-top:1px solid var(--line);text-decoration:none}
+  .item:hover{background:color-mix(in srgb,var(--line) 35%,transparent)}
+  .item .ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--c-bg);color:var(--c-tx);flex:none;font-size:17px}
+  .item span{flex:1;min-width:0}
+  .item small{display:block;color:var(--mut);font-size:12px}
+  .item > i{color:var(--mut)}
+
+  footer{display:flex;justify-content:space-between;align-items:center;padding:22px 16px 18px;color:var(--faint);font-size:12px}
+  @media (min-width:900px){ footer{padding:24px} }
+  .gear{color:var(--faint);text-decoration:none;font-size:17px;padding:6px;border-radius:8px;line-height:1}
+  .gear:hover{color:var(--hd)}
+
+  .skel{border-radius:18px;background:var(--panel);animation:pulse 1.2s infinite ease-in-out}
+  @keyframes pulse{50%{opacity:.5}}
+  .msg{color:var(--mut);padding:20px 0}
+  a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--hd);outline-offset:2px}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<main>
-  <img class="avatar" id="avatar" alt="A2R LAB logo" src="https://ugc.production.linktr.ee/c7b1a284-d27b-432b-8c68-59e976229a0b_logo-small.png?io=true&size=avatar-v3_0">
-  <h1 id="name">A2R LAB</h1>
-  <p class="bio" id="bio">Autonomous &amp; Assistive Robotics Lab, University of Debrecen Hungary</p>
-  <nav class="socials" id="socials" aria-label="Social links"></nav>
-  <div class="links" id="links">
-    <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
-  </div>
-  <footer>© <span id="yr"></span> A2R LAB · University of Debrecen</footer>
-</main>
+<div class="wrap">
+  <header>
+    <img class="avatar" id="avatar" alt="" src="https://ugc.production.linktr.ee/c7b1a284-d27b-432b-8c68-59e976229a0b_logo-small.png?io=true&size=avatar-v3_0">
+    <div class="who"><h1 id="name">A2R LAB</h1><p id="bio">Autonomous and assistive robotics lab, University of Debrecen</p></div>
+    <nav class="socials" id="socials" aria-label="Social links"></nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch theme"><i class="ti ti-sun" id="themeIcon"></i><span id="themeLabel">Light</span></button>
+  </header>
+
+  <main id="main">
+    <div class="col"><div class="bento"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+  </main>
+
+  <footer>
+    <span id="foot">A2R LAB · University of Debrecen</span>
+    <a class="gear" href="admin.html" aria-label="Manage links" title="Manage links"><i class="ti ti-settings"></i></a>
+  </footer>
+</div>
 
 <script src="config.js"></script>
-<script src="icons.js"></script>
+<script src="shared.js"></script>
 <script>
-const CACHE_KEY = 'a2r-links-cache';
-document.getElementById('yr').textContent = new Date().getFullYear();
+const CACHE = 'a2r-cache', THEME = 'a2r-theme';
+const { esc, safeUrl, iconFor, youtubeId } = A2R;
+const root = document.documentElement;
 
-function esc(s){return String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+/* ---------- theme ---------- */
+function currentTheme() {
+  if (root.dataset.theme) return root.dataset.theme;
+  return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+function paintThemeButton() {
+  const t = currentTheme();
+  document.getElementById('themeIcon').className = 'ti ' + (t === 'dark' ? 'ti-sun' : 'ti-moon');
+  document.getElementById('themeLabel').textContent = t === 'dark' ? 'Light' : 'Dark';
+  document.querySelector('meta[name=theme-color]').content = t === 'dark' ? '#26215C' : '#F1EFE8';
+}
+document.getElementById('themeBtn').onclick = () => {
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  root.dataset.theme = next;
+  try { localStorage.setItem(THEME, next); } catch (e) {}
+  paintThemeButton();
+};
+matchMedia('(prefers-color-scheme: light)').addEventListener('change', paintThemeButton);
+paintThemeButton();
 
-function render(data){
+/* ---------- render ---------- */
+function colorVars(key) {
+  const c = A2R.color(key);
+  return `--c-bg:${c[0]};--c-tx:${c[1]};--c-sub:${c[2]}`;
+}
+function tileHTML(l) {
+  const size = ['small', 'tall', 'wide'].includes(l.size) ? l.size : 'small';
+  return `<a class="tile ${size}" style="${colorVars(l.color)}" href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener">
+    <i class="ti ti-${esc(iconFor(l))}" aria-hidden="true"></i>
+    <div><b>${esc(l.title)}</b>${l.description ? `<small>${esc(l.description)}</small>` : ''}</div></a>`;
+}
+function videoHTML(l) {
+  const id = youtubeId(l.url);
+  const bg = id ? `style="background-image:url('https://i.ytimg.com/vi/${id}/hqdefault.jpg')"` : '';
+  return `<a class="video" href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener">
+    <div class="thumb" ${bg}><i class="ti ti-player-play" aria-hidden="true"></i></div><b>${esc(l.title)}</b></a>`;
+}
+function itemHTML(l) {
+  return `<a class="item" style="${colorVars(l.color)}" href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener">
+    <span class="ic"><i class="ti ti-${esc(iconFor(l))}" aria-hidden="true"></i></span>
+    <span>${esc(l.title)}${l.description ? `<small>${esc(l.description)}</small>` : ''}</span>
+    <i class="ti ti-chevron-right" aria-hidden="true"></i></a>`;
+}
+
+function render(data) {
   const s = data.settings || {};
-  const root = document.documentElement.style;
-  if (s.bg) root.setProperty('--bg', s.bg);
-  if (s.bg2) root.setProperty('--bg2', s.bg2);
-  if (s.button) root.setProperty('--btn', s.button);
-  if (s.buttonText) root.setProperty('--btnText', s.buttonText);
-  if (s.text) root.setProperty('--text', s.text);
-  if (s.name){ document.getElementById('name').textContent = s.name; document.title = s.name; }
+  if (s.name) { document.getElementById('name').textContent = s.name; document.title = s.name; }
   if (s.bio) document.getElementById('bio').textContent = s.bio;
   if (s.avatar) document.getElementById('avatar').src = s.avatar;
+  if (s.footer) document.getElementById('foot').textContent = s.footer;
+  if (!localStorage.getItem(THEME) && (s.theme === 'light' || s.theme === 'dark')) { root.dataset.theme = s.theme; paintThemeButton(); }
 
   const links = (data.links || []).filter(l => l.active !== false);
   document.getElementById('socials').innerHTML = links.filter(l => l.type === 'social').map(l =>
-    `<a href="${esc(l.url)}" target="_blank" rel="noopener" aria-label="${esc(l.title)}" title="${esc(l.title)}">${A2R_iconFor(l) || esc(l.title[0])}</a>`
-  ).join('');
+    `<a href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener" aria-label="${esc(l.title)}" title="${esc(l.title)}"><i class="ti ti-${esc(iconFor(l))}"></i></a>`).join('');
 
-  const html = links.filter(l => l.type !== 'social').map(l => {
-    if (l.type === 'header') return `<h2 class="section">${esc(l.title)}</h2>`;
-    const ic = A2R_iconFor(l);
-    return `<a class="link" href="${esc(l.url)}" target="_blank" rel="noopener">
-      ${ic ? `<span class="ic">${ic}</span>` : ''}
-      <span>${esc(l.title)}${l.description ? `<small>${esc(l.description)}</small>` : ''}</span>
-    </a>`;
-  }).join('');
-  document.getElementById('links').innerHTML = html || '<p class="msg">No links yet.</p>';
+  // Group by section, keeping the order of first appearance. A section's style follows its first item's type.
+  const sections = [];
+  links.filter(l => l.type !== 'social').forEach(l => {
+    const name = l.section || 'More links';
+    let sec = sections.find(x => x.name === name);
+    if (!sec) sections.push(sec = { name, type: l.type, items: [] });
+    sec.items.push(l);
+  });
+
+  const wide = matchMedia('(min-width:900px)').matches;
+  const left = [], right = [];
+  sections.forEach(sec => {
+    let html;
+    if (sec.type === 'tile') html = `<section><h2>${esc(sec.name)}</h2><div class="bento">${sec.items.map(tileHTML).join('')}</div></section>`;
+    else if (sec.type === 'video') html = `<section><h2>${esc(sec.name)}</h2><div class="videos">${sec.items.map(videoHTML).join('')}</div></section>`;
+    else html = `<details class="panel" ${wide ? 'open' : ''}><summary>${esc(sec.name)}<i class="ti ti-chevron-down"></i></summary>${sec.items.map(itemHTML).join('')}</details>`;
+    (sec.type === 'tile' ? left : right).push(html);
+  });
+
+  document.getElementById('main').innerHTML = (left.length || right.length)
+    ? `<div class="col">${left.join('')}</div><div class="col">${right.join('')}</div>`
+    : '<p class="msg">No links yet.</p>';
 }
 
-// Show cached copy instantly, then refresh from Google Sheet
-try { const c = localStorage.getItem(CACHE_KEY); if (c) render(JSON.parse(c)); } catch(e){}
+try { const c = localStorage.getItem(CACHE); if (c) render(JSON.parse(c)); } catch (e) {}
 
 fetch(window.A2R_API_URL)
   .then(r => r.json())
-  .then(d => { if (!d.ok) throw new Error(d.error); render(d); try{localStorage.setItem(CACHE_KEY, JSON.stringify(d));}catch(e){} })
+  .then(d => {
+    if (!d.ok) throw new Error(d.error);
+    render(d);
+    try { localStorage.setItem(CACHE, JSON.stringify(d)); } catch (e) {}
+  })
   .catch(err => {
     console.error(err);
-    if (!localStorage.getItem(CACHE_KEY))
-      document.getElementById('links').innerHTML = '<p class="msg">Links could not be loaded. Check the API URL in config.js.</p>';
+    if (!localStorage.getItem(CACHE))
+      document.getElementById('main').innerHTML = '<p class="msg">Links couldn’t load. Check the API URL in config.js.</p>';
   });
 </script>
 </body>

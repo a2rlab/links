@@ -4,152 +4,162 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>A2R LAB · Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>A2R LAB · Manage links</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--ink:#1f2a44;--muted:#6b7385;--line:#e3e6ee;--bg:#f5f6fa;--card:#fff;--accent:#2d5bff;--danger:#d93838;--ok:#1a9b5a}
+  :root{--bg:#F5F4F0;--card:#fff;--tx:#26215C;--mut:#6B6A66;--line:#E2E0D8;--accent:#534AB7;--accentBg:#EEEDFE;--danger:#C2362F;--ok:#1D9E75;color-scheme:light}
+  @media (prefers-color-scheme:dark){:root{--bg:#1A1740;--card:#26215C;--tx:#EEEDFE;--mut:#AFA9EC;--line:#3C3489;--accent:#CECBF6;--accentBg:#3C3489;--danger:#F09595;color-scheme:dark}}
   *{box-sizing:border-box}
-  body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--bg);font-size:14px}
-  button,input,select,textarea{font:inherit}
-  .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
-  header{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px}
-  header h1{font-size:20px;margin:0}
-  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:500}
-  .btn:hover{border-color:#c5cad6}
-  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:14px}
+  button,input,select,textarea{font:inherit;color:inherit}
+  .wrap{max-width:1240px;margin:0 auto;padding:18px 16px 80px}
+  .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .top h1{font-size:18px;font-weight:600;margin:0;flex:1;display:flex;gap:8px;align-items:center}
+  .btn{border:1px solid var(--line);background:var(--card);padding:8px 13px;border-radius:9px;cursor:pointer;font-weight:500;display:inline-flex;gap:6px;align-items:center;text-decoration:none;color:var(--tx)}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--card)}
   .btn.danger{color:var(--danger)}
   .btn.sm{padding:5px 9px;font-size:13px}
-  .btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
-  @media (max-width:900px){.grid{grid-template-columns:1fr}.preview{display:none}}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px}
-  .card h2{font-size:15px;margin:0;padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
-  .row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
-  .row:last-child{border-bottom:0}
-  .row.hidden{opacity:.5}
-  .row.header{background:#fafbfd}
-  .handle{display:flex;flex-direction:column;gap:2px}
-  .handle button{border:0;background:none;cursor:pointer;color:var(--muted);padding:0 4px;line-height:1;font-size:12px}
-  .handle button:disabled{opacity:.25;cursor:default}
-  .tag{font-size:11px;padding:2px 7px;border-radius:999px;background:#eef1f7;color:var(--muted);white-space:nowrap}
-  .tag.social{background:#efe9ff;color:#6a3fd8}.tag.header{background:#fff3df;color:#a8630b}
-  .info{flex:1;min-width:0}
-  .info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .info a{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-decoration:none}
-  .actions{display:flex;gap:6px}
-  .switch{position:relative;width:34px;height:20px;flex:none}
+  .icon-btn{border:0;background:none;cursor:pointer;color:var(--mut);padding:4px 6px;border-radius:6px;font-size:16px;line-height:1}
+  .icon-btn:hover{color:var(--tx);background:var(--accentBg)}
+  .icon-btn:disabled{opacity:.25;cursor:default;background:none}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:20px;align-items:start}
+  @media (max-width:1000px){.grid{grid-template-columns:1fr}.preview{display:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .sec-h{display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--bg);border-bottom:1px solid var(--line);font-weight:600}
+  .sec-h .tag{font-weight:500}
+  .row{display:grid;grid-template-columns:auto 34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
+  .row.off{opacity:.5}
+  .row .sw-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:18px}
+  .title b{font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .title a{font-size:12px;color:var(--mut);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none}
+  .acts{display:flex;align-items:center;gap:2px}
+  .tune{grid-column:3 / -1;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .swatches{display:flex;gap:5px}
+  .sw{width:20px;height:20px;border-radius:6px;border:2px solid transparent;cursor:pointer;padding:0}
+  .sw.on{border-color:var(--tx)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{border:0;background:none;padding:4px 10px;font-size:12px;cursor:pointer;color:var(--mut)}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button.on{background:var(--accentBg);color:var(--accent);font-weight:600}
+  .tag{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--accentBg);color:var(--accent)}
+  .handle{display:flex;flex-direction:column}
+  .handle .icon-btn{padding:0 4px;font-size:14px}
+  .switch{position:relative;width:34px;height:20px;display:inline-block}
   .switch input{opacity:0;width:0;height:0}
-  .switch span{position:absolute;inset:0;background:#cfd4df;border-radius:999px;cursor:pointer;transition:.15s}
+  .switch span{position:absolute;inset:0;background:var(--line);border-radius:99px;cursor:pointer;transition:.15s}
   .switch span:before{content:"";position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s}
   .switch input:checked+span{background:var(--ok)}
   .switch input:checked+span:before{transform:translateX(14px)}
-  .empty{padding:30px;text-align:center;color:var(--muted)}
-  .preview iframe{width:100%;height:640px;border:0;border-radius:0 0 12px 12px}
-  dialog{border:0;border-radius:14px;padding:0;width:min(520px,94vw);box-shadow:0 20px 60px #0004}
-  dialog::backdrop{background:#0f162688}
-  form.f{padding:20px;display:grid;gap:12px}
-  form.f h3{margin:0 0 4px}
+  .switch input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+  .empty{padding:30px;text-align:center;color:var(--mut)}
+  .stack{display:grid;gap:16px}
+  .preview{position:sticky;top:16px}
+  .preview .bar{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);font-weight:600}
+  .preview iframe{width:100%;height:760px;border:0;display:block}
+  dialog{border:0;border-radius:16px;padding:0;width:min(560px,94vw);background:var(--card);color:var(--tx);box-shadow:0 24px 60px #0005}
+  dialog::backdrop{background:#0f0c2a99}
+  form.f{padding:20px;display:grid;gap:13px}
+  form.f h3{margin:0;font-size:17px}
   label{display:grid;gap:5px;font-weight:500;font-size:13px}
-  input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;background:#fff}
-  textarea{resize:vertical;min-height:60px}
+  input,select,textarea{border:1px solid var(--line);border-radius:9px;padding:9px 10px;width:100%;background:var(--bg)}
+  textarea{resize:vertical}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
-  .hint{font-size:12px;color:var(--muted);font-weight:400}
-  .login{max-width:360px;margin:12vh auto;padding:28px}
-  .login h1{font-size:20px;margin:0 0 6px}
-  .login p{color:var(--muted);margin:0 0 18px}
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none;z-index:99}
-  .toast.show{opacity:1}.toast.err{background:var(--danger)}
-  .busy{pointer-events:none;opacity:.6}
-  .colors{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-  .colors input[type=color]{height:38px;padding:3px}
+  .hint{font-size:12px;color:var(--mut);font-weight:400}
+  .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+  .iconprev{display:flex;gap:8px;align-items:center}
+  .iconprev i{font-size:22px;width:38px;height:38px;display:grid;place-items:center;border-radius:10px;flex:none}
+  .login{max-width:380px;margin:14vh auto;padding:26px}
+  .login h1{font-size:19px;margin:0 0 6px}
+  .login p{color:var(--mut);margin:0 0 16px}
+  .err{color:var(--danger);font-size:13px;min-height:1em}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--card);padding:10px 16px;border-radius:9px;opacity:0;transition:.2s;pointer-events:none;z-index:99}
+  .toast.show{opacity:1}.toast.err{background:var(--danger);color:#fff}
+  .busy{cursor:progress}
 </style>
 </head>
 <body>
 
-<!-- Login -->
 <section id="loginView" class="card login" hidden>
-  <h1>A2R LAB admin</h1>
-  <p>Enter the admin password to manage links.</p>
+  <h1><i class="ti ti-lock"></i> Manage links</h1>
+  <p>Enter the admin password.</p>
   <form id="loginForm" class="f" style="padding:0">
     <label>Password <input type="password" id="pw" autocomplete="current-password" required></label>
+    <div class="err" id="loginErr"></div>
     <button class="btn primary" type="submit">Sign in</button>
+    <a href="index.html" class="hint" style="text-align:center">Back to page</a>
   </form>
 </section>
 
-<!-- Dashboard -->
 <div id="appView" class="wrap" hidden>
-  <header>
-    <h1>A2R LAB links</h1>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <a class="btn" href="index.html" target="_blank">View page</a>
-      <button class="btn" id="settingsBtn">Profile &amp; colors</button>
-      <button class="btn primary" id="addBtn">Add link</button>
-      <button class="btn" id="logoutBtn">Sign out</button>
-    </div>
-  </header>
+  <div class="top">
+    <h1><i class="ti ti-settings"></i> Manage links</h1>
+    <a class="btn" href="index.html"><i class="ti ti-arrow-left"></i> Back to page</a>
+    <button class="btn" id="settingsBtn"><i class="ti ti-user-circle"></i> Profile</button>
+    <button class="btn primary" id="addBtn"><i class="ti ti-plus"></i> Add link</button>
+    <button class="icon-btn" id="logoutBtn" title="Sign out" aria-label="Sign out"><i class="ti ti-logout"></i></button>
+  </div>
   <div class="grid">
-    <div class="card">
-      <h2>Links <span class="hint" id="count"></span></h2>
-      <div id="list"><div class="empty">Loading…</div></div>
-    </div>
+    <div class="stack" id="list"><div class="card empty">Loading…</div></div>
     <div class="card preview">
-      <h2>Live preview <button class="btn sm" id="reloadPrev">Refresh</button></h2>
+      <div class="bar">Preview <button class="icon-btn" id="reloadPrev" aria-label="Refresh preview"><i class="ti ti-refresh"></i></button></div>
       <iframe id="prev" src="index.html" title="Public page preview"></iframe>
     </div>
   </div>
 </div>
 
-<!-- Link editor -->
 <dialog id="linkDlg">
-  <form class="f" id="linkForm" method="dialog">
+  <form class="f" id="linkForm">
     <h3 id="dlgTitle">Add link</h3>
     <input type="hidden" name="id">
-    <label>Type
-      <select name="type">
-        <option value="link">Button link</option>
-        <option value="social">Social icon (top row)</option>
-        <option value="header">Section header</option>
-      </select>
-    </label>
-    <label>Title <input name="title" required></label>
-    <label class="urlField">URL <input name="url" placeholder="https://… or mailto:…"></label>
-    <label class="descField">Description <span class="hint">optional, small text under the title</span>
-      <textarea name="description" rows="2"></textarea></label>
     <div class="two">
-      <label class="iconField">Icon
-        <select name="icon">
-          <option value="">Auto / none</option>
-          <option>instagram</option><option>linkedin</option><option>email</option>
-          <option>youtube</option><option>github</option><option>facebook</option><option>x</option>
-          <option>web</option><option>form</option><option>calendar</option><option>robot</option>
+      <label>Display as
+        <select name="type">
+          <option value="tile">Tile (colored card)</option>
+          <option value="link">List row</option>
+          <option value="video">Video card</option>
+          <option value="social">Social icon (header)</option>
         </select>
       </label>
-      <label>Visible
-        <select name="active"><option value="true">Shown</option><option value="false">Hidden</option></select>
+      <label class="f-section">Section
+        <input name="section" list="sectionList" placeholder="Pinned tools">
+        <datalist id="sectionList"></datalist>
       </label>
     </div>
+    <label>Title <input name="title" required placeholder="Inventory system"></label>
+    <label>URL <input name="url" required placeholder="https://… or mailto:…"></label>
+    <label class="f-desc">Description <span class="hint">Shown on tall and wide tiles, and in list rows</span>
+      <input name="description" placeholder="Find parts and tools"></label>
+    <label class="f-icon">Icon <span class="hint">Any <a href="https://tabler.io/icons" target="_blank" rel="noopener">Tabler icon</a> name</span>
+      <div class="iconprev"><i class="ti" id="iconPrev"></i><input name="icon" list="iconList" placeholder="box"></div>
+      <datalist id="iconList"></datalist>
+    </label>
+    <div class="f-size"><label>Tile size</label><div class="seg" id="sizeSeg" style="margin-top:5px"></div></div>
+    <div class="f-color"><label>Color</label><div class="swatches" id="colorSeg" style="margin-top:5px"></div></div>
+    <label style="display:flex;align-items:center;gap:10px">
+      <span class="switch"><input type="checkbox" name="active"><span></span></span> Visible on page
+    </label>
+    <div class="err" id="linkErr"></div>
     <div class="foot">
+      <button class="btn danger" type="button" id="delInDlg" style="margin-right:auto"><i class="ti ti-trash"></i> Delete</button>
       <button class="btn" type="button" id="cancelLink">Cancel</button>
-      <button class="btn primary" type="submit" id="saveLink">Save link</button>
+      <button class="btn primary" type="submit">Save link</button>
     </div>
   </form>
 </dialog>
 
-<!-- Settings editor -->
 <dialog id="setDlg">
-  <form class="f" id="setForm" method="dialog">
-    <h3>Profile &amp; colors</h3>
+  <form class="f" id="setForm">
+    <h3>Profile</h3>
     <label>Name <input name="name"></label>
     <label>Bio <textarea name="bio" rows="2"></textarea></label>
     <label>Avatar image URL <input name="avatar"></label>
-    <div class="colors">
-      <label>Background top <input type="color" name="bg"></label>
-      <label>Background bottom <input type="color" name="bg2"></label>
-      <label>Button <input type="color" name="button"></label>
-      <label>Button text <input type="color" name="buttonText"></label>
-      <label>Page text <input type="color" name="text"></label>
-    </div>
+    <label>Footer text <input name="footer"></label>
+    <label>Default theme <span class="hint">Visitors can still switch with the theme button</span>
+      <select name="theme"><option value="auto">Follow device setting</option><option value="dark">Dark</option><option value="light">Light</option></select>
+    </label>
     <div class="foot">
       <button class="btn" type="button" id="cancelSet">Cancel</button>
       <button class="btn primary" type="submit">Save profile</button>
@@ -157,140 +167,198 @@
   </form>
 </dialog>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status"></div>
 
 <script src="config.js"></script>
+<script src="shared.js"></script>
 <script>
-const API = window.A2R_API_URL;
-const PW_KEY = 'a2r-admin-pw';
-let password = sessionStorage.getItem(PW_KEY) || '';
-let links = [], settings = {};
+const API = window.A2R_API_URL, PW = 'a2r-admin-pw';
+const { esc, safeUrl, iconFor, COLORS } = A2R;
+let password = sessionStorage.getItem(PW) || '', links = [], settings = {};
 const $ = s => document.querySelector(s);
-const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TYPE_LABEL = { tile: 'Tiles', link: 'List', video: 'Videos', social: 'Header icons' };
 
-function toast(msg, err){ const t=$('#toast'); t.textContent=msg; t.className='toast show'+(err?' err':''); clearTimeout(t._h); t._h=setTimeout(()=>t.className='toast',2600); }
+function toast(m, err) { const t = $('#toast'); t.textContent = m; t.className = 'toast show' + (err ? ' err' : ''); clearTimeout(t.h); t.h = setTimeout(() => t.className = 'toast', 2600); }
 
-// text/plain avoids a CORS preflight, which Apps Script can't answer
-async function api(action, payload={}){
+async function api(action, payload = {}) {
   document.body.classList.add('busy');
-  try{
-    const r = await fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({password, action, ...payload})});
+  try {
+    const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ password, action, ...payload }) });
     const d = await r.json();
-    if(!d.ok) throw new Error(d.error || 'Request failed');
+    if (!d.ok) throw new Error(d.error || 'Request failed');
     return d;
   } finally { document.body.classList.remove('busy'); }
 }
 
-function show(view){ $('#loginView').hidden = view!=='login'; $('#appView').hidden = view!=='app'; }
+function show(v) { $('#loginView').hidden = v !== 'login'; $('#appView').hidden = v !== 'app'; }
 
-async function load(){
-  try{
-    const d = await api('list');
-    links = d.links; settings = d.settings; render(); show('app');
-  }catch(e){
-    if(/password/i.test(e.message)){ sessionStorage.removeItem(PW_KEY); password=''; show('login'); toast(e.message,true); }
-    else { show('app'); $('#list').innerHTML = `<div class="empty">${esc(e.message)}<br>Check the API URL in config.js.</div>`; }
+async function load() {
+  try {
+    const d = await api('list'); links = d.links; settings = d.settings; render(); show('app');
+  } catch (e) {
+    if (/password/i.test(e.message)) { sessionStorage.removeItem(PW); password = ''; show('login'); $('#loginErr').textContent = 'That password is wrong. Try again.'; }
+    else { show('app'); $('#list').innerHTML = `<div class="card empty">Couldn’t reach the sheet: ${esc(e.message)}. Check the API URL in config.js.</div>`; }
   }
 }
 
-function render(){
-  $('#count').textContent = `${links.length} items`;
-  if(!links.length){ $('#list').innerHTML = '<div class="empty">No links yet. Use “Add link” to create the first one.</div>'; return; }
-  $('#list').innerHTML = links.map((l,i)=>`
-    <div class="row ${l.type} ${l.active?'':'hidden'}" data-id="${esc(l.id)}">
-      <div class="handle">
-        <button data-act="up" ${i===0?'disabled':''} aria-label="Move up">▲</button>
-        <button data-act="down" ${i===links.length-1?'disabled':''} aria-label="Move down">▼</button>
-      </div>
-      <span class="tag ${l.type}">${l.type==='link'?'button':l.type}</span>
-      <div class="info"><b>${esc(l.title)}</b>${l.url?`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.url)}</a>`:''}</div>
-      <label class="switch" title="Show / hide"><input type="checkbox" data-act="toggle" ${l.active?'checked':''}><span></span></label>
-      <div class="actions">
-        <button class="btn sm" data-act="edit">Edit</button>
-        <button class="btn sm danger" data-act="del">Delete</button>
-      </div>
+function groups() {
+  const out = [];
+  const socials = links.filter(l => l.type === 'social');
+  if (socials.length) out.push({ name: 'Header icons', type: 'social', items: socials });
+  links.filter(l => l.type !== 'social').forEach(l => {
+    const name = l.section || 'More links';
+    let g = out.find(x => x.name === name && x.type !== 'social');
+    if (!g) out.push(g = { name, type: l.type, items: [] });
+    g.items.push(l);
+  });
+  return out;
+}
+
+function swatches(l) {
+  return `<div class="swatches">${Object.keys(COLORS).map(k =>
+    `<button class="sw ${k === (l.color || 'sand') ? 'on' : ''}" style="background:${COLORS[k][0]}" data-act="color" data-v="${k}" aria-label="${k}" title="${k}"></button>`).join('')}</div>`;
+}
+function sizeSeg(l) {
+  return `<div class="seg">${['small', 'tall', 'wide'].map(s =>
+    `<button class="${(l.size || 'small') === s ? 'on' : ''}" data-act="size" data-v="${s}">${s[0].toUpperCase() + s.slice(1)}</button>`).join('')}</div>`;
+}
+
+function render() {
+  $('#sectionList').innerHTML = [...new Set(links.map(l => l.section).filter(Boolean))].map(s => `<option value="${esc(s)}">`).join('');
+  const gs = groups();
+  if (!gs.length) { $('#list').innerHTML = '<div class="card empty">Add your first link to start building the page.</div>'; return; }
+  $('#list').innerHTML = gs.map(g => `
+    <div class="card">
+      <div class="sec-h">${esc(g.name)} <span class="tag">${TYPE_LABEL[g.type] || g.type}</span></div>
+      ${g.items.map((l, i) => {
+        const c = A2R.color(l.color);
+        const tunable = l.type === 'tile' || l.type === 'link';
+        return `<div class="row ${l.active ? '' : 'off'}" data-id="${esc(l.id)}">
+          <div class="handle">
+            <button class="icon-btn" data-act="up" ${i === 0 ? 'disabled' : ''} aria-label="Move up"><i class="ti ti-chevron-up"></i></button>
+            <button class="icon-btn" data-act="down" ${i === g.items.length - 1 ? 'disabled' : ''} aria-label="Move down"><i class="ti ti-chevron-down"></i></button>
+          </div>
+          <span class="sw-ic" style="background:${tunable ? c[0] : 'var(--accentBg)'};color:${tunable ? c[1] : 'var(--accent)'}"><i class="ti ti-${esc(l.type === 'video' ? 'player-play' : iconFor(l))}"></i></span>
+          <div class="title"><b>${esc(l.title)}</b><a href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener">${esc(l.url)}</a></div>
+          <div class="acts">
+            <label class="switch" title="Visible"><input type="checkbox" data-act="toggle" ${l.active ? 'checked' : ''} aria-label="Visible"><span></span></label>
+            <button class="icon-btn" data-act="edit" aria-label="Edit"><i class="ti ti-edit"></i></button>
+            <button class="icon-btn" data-act="del" aria-label="Delete"><i class="ti ti-trash"></i></button>
+          </div>
+          ${tunable ? `<div class="tune">${swatches(l)}${l.type === 'tile' ? sizeSeg(l) : ''}</div>` : ''}
+        </div>`;
+      }).join('')}
     </div>`).join('');
 }
 
-function refreshPreview(){ try{ $('#prev').contentWindow.localStorage.removeItem('a2r-links-cache'); }catch(e){} $('#prev').src = 'index.html?t='+Date.now(); }
+function refreshPreview() {
+  try { $('#prev').contentWindow.localStorage.removeItem('a2r-cache'); } catch (e) {}
+  $('#prev').src = 'index.html?t=' + Date.now();
+}
 
-$('#list').addEventListener('click', async e=>{
-  const btn = e.target.closest('[data-act]'); if(!btn) return;
-  const id = btn.closest('.row').dataset.id;
-  const i = links.findIndex(l=>l.id===id); const l = links[i];
-  const act = btn.dataset.act;
-  try{
-    if(act==='edit') openLink(l);
-    if(act==='del'){
-      if(!confirm(`Delete “${l.title}”? This cannot be undone.`)) return;
-      await api('delete',{id}); links.splice(i,1); render(); toast('Link deleted'); refreshPreview();
-    }
-    if(act==='up'||act==='down'){
-      const j = act==='up'?i-1:i+1;
-      [links[i],links[j]]=[links[j],links[i]]; render();
-      await api('reorder',{ids:links.map(x=>x.id)}); refreshPreview();
-    }
-    if(act==='toggle'){
-      l.active = btn.checked;
-      await api('update',{link:l}); render(); toast(l.active?'Link shown':'Link hidden'); refreshPreview();
-    }
-  }catch(err){ toast(err.message,true); load(); }
+async function saveLink(l, msg) {
+  render();
+  try { await api('update', { link: l }); if (msg) toast(msg); refreshPreview(); }
+  catch (e) { toast(e.message, true); load(); }
+}
+
+$('#list').addEventListener('click', async e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  const row = b.closest('.row'); if (!row) return;
+  const l = links.find(x => x.id === row.dataset.id);
+  const act = b.dataset.act;
+  if (act === 'edit') return openLink(l);
+  if (act === 'color') { l.color = b.dataset.v; return saveLink(l); }
+  if (act === 'size') { l.size = b.dataset.v; return saveLink(l); }
+  if (act === 'toggle') { l.active = b.checked; return saveLink(l, l.active ? 'Link shown' : 'Link hidden'); }
+  if (act === 'del') return removeLink(l);
+  if (act === 'up' || act === 'down') {
+    const g = groups().find(g => g.items.includes(l));
+    const k = g.items.indexOf(l), other = g.items[act === 'up' ? k - 1 : k + 1];
+    const a = links.indexOf(l), c = links.indexOf(other);
+    [links[a], links[c]] = [links[c], links[a]];
+    render();
+    try { await api('reorder', { ids: links.map(x => x.id) }); refreshPreview(); } catch (err) { toast(err.message, true); load(); }
+  }
 });
 
-// ----- link dialog
+async function removeLink(l) {
+  if (!confirm(`Delete “${l.title}”? This can’t be undone.`)) return false;
+  try { await api('delete', { id: l.id }); links = links.filter(x => x !== l); render(); toast('Link deleted'); refreshPreview(); return true; }
+  catch (e) { toast(e.message, true); return false; }
+}
+
+/* ---------- link dialog ---------- */
 const lf = $('#linkForm');
-function syncFields(){
+let draft = {};
+$('#iconList').innerHTML = A2R.ICONS.map(i => `<option value="${i}">`).join('');
+
+function paintDialog() {
   const t = lf.type.value;
-  lf.querySelector('.urlField').hidden = t==='header';
-  lf.querySelector('.descField').hidden = t!=='link';
-  lf.querySelector('.iconField').hidden = t==='header';
+  lf.querySelector('.f-section').hidden = t === 'social';
+  lf.querySelector('.f-desc').hidden = t === 'social';
+  lf.querySelector('.f-icon').hidden = t === 'video';
+  lf.querySelector('.f-size').hidden = t !== 'tile';
+  lf.querySelector('.f-color').hidden = !(t === 'tile' || t === 'link');
+  $('#sizeSeg').innerHTML = sizeSeg(draft);
+  $('#colorSeg').innerHTML = swatches(draft).replace(/^<div class="swatches">|<\/div>$/g, '');
+  const c = A2R.color(draft.color);
+  const ip = $('#iconPrev');
+  ip.className = 'ti ti-' + (lf.icon.value.trim() || iconFor({ url: lf.url.value }));
+  ip.style.background = c[0]; ip.style.color = c[1];
 }
-lf.type.addEventListener('change', syncFields);
-function openLink(l){
-  lf.reset();
+['type', 'icon', 'url'].forEach(n => lf[n].addEventListener('input', paintDialog));
+$('#sizeSeg').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { e.preventDefault(); draft.size = b.dataset.v; paintDialog(); } };
+$('#colorSeg').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { e.preventDefault(); draft.color = b.dataset.v; paintDialog(); } };
+
+function openLink(l) {
+  lf.reset(); $('#linkErr').textContent = '';
+  draft = l ? { ...l } : { type: 'tile', section: 'Pinned tools', size: 'small', color: 'mint', active: true };
   $('#dlgTitle').textContent = l ? 'Edit link' : 'Add link';
-  const v = l || {type:'link',active:true};
-  ['id','type','title','url','description','icon'].forEach(k=> lf[k].value = v[k] ?? '');
-  lf.active.value = String(v.active!==false);
-  syncFields(); $('#linkDlg').showModal(); lf.title.focus();
+  $('#delInDlg').hidden = !l;
+  ['id', 'type', 'section', 'title', 'url', 'description', 'icon'].forEach(k => lf[k].value = draft[k] ?? '');
+  lf.active.checked = draft.active !== false;
+  paintDialog(); $('#linkDlg').showModal(); lf.title.focus();
 }
-$('#addBtn').onclick = ()=>openLink(null);
-$('#cancelLink').onclick = ()=>$('#linkDlg').close();
-lf.addEventListener('submit', async e=>{
+$('#addBtn').onclick = () => openLink(null);
+$('#cancelLink').onclick = () => $('#linkDlg').close();
+$('#delInDlg').onclick = async () => { const l = links.find(x => x.id === lf.id.value); if (l && await removeLink(l)) $('#linkDlg').close(); };
+
+lf.addEventListener('submit', async e => {
   e.preventDefault();
-  const link = Object.fromEntries(new FormData(lf));
-  link.active = link.active==='true';
-  if(link.type!=='header' && !link.url){ toast('URL is required',true); return; }
-  try{
-    if(link.id){
-      const old = links.find(x=>x.id===link.id); link.order = old.order;
-      await api('update',{link}); Object.assign(old, link); toast('Link saved');
+  const f = Object.fromEntries(new FormData(lf));
+  const link = { ...draft, ...f, active: lf.active.checked };
+  if (!link.title.trim()) return $('#linkErr').textContent = 'Enter a title.';
+  if (safeUrl(link.url) === '#') return $('#linkErr').textContent = 'Enter a URL starting with https://, mailto: or tel:';
+  if (link.type !== 'social' && !link.section.trim()) link.section = link.type === 'video' ? 'Watch' : 'More links';
+  try {
+    if (link.id) {
+      await api('update', { link });
+      Object.assign(links.find(x => x.id === link.id), link); toast('Link saved');
     } else {
-      delete link.id; const d = await api('create',{link}); links.push(d.link); toast('Link added');
+      delete link.id; const d = await api('create', { link }); links.push(d.link); toast('Link added');
     }
     $('#linkDlg').close(); render(); refreshPreview();
-  }catch(err){ toast(err.message,true); }
+  } catch (err) { $('#linkErr').textContent = err.message; }
 });
 
-// ----- settings dialog
+/* ---------- profile dialog ---------- */
 const sf = $('#setForm');
-const defaults = {bg:'#1f2a44',bg2:'#0f1626',button:'#ffffff',buttonText:'#1f2a44',text:'#ffffff'};
-$('#settingsBtn').onclick = ()=>{
-  ['name','bio','avatar','bg','bg2','button','buttonText','text'].forEach(k=> sf[k].value = settings[k] || defaults[k] || '');
+$('#settingsBtn').onclick = () => {
+  ['name', 'bio', 'avatar', 'footer'].forEach(k => sf[k].value = settings[k] || '');
+  sf.theme.value = settings.theme || 'auto';
   $('#setDlg').showModal();
 };
-$('#cancelSet').onclick = ()=>$('#setDlg').close();
-sf.addEventListener('submit', async e=>{
+$('#cancelSet').onclick = () => $('#setDlg').close();
+sf.addEventListener('submit', async e => {
   e.preventDefault();
-  try{ const d = await api('settings',{settings:Object.fromEntries(new FormData(sf))}); settings=d.settings;
-    $('#setDlg').close(); toast('Profile saved'); refreshPreview(); }
-  catch(err){ toast(err.message,true); }
+  try { const d = await api('settings', { settings: Object.fromEntries(new FormData(sf)) }); settings = d.settings; $('#setDlg').close(); toast('Profile saved'); refreshPreview(); }
+  catch (err) { toast(err.message, true); }
 });
 
-// ----- auth
-$('#loginForm').addEventListener('submit', e=>{ e.preventDefault(); password=$('#pw').value; sessionStorage.setItem(PW_KEY,password); load(); });
-$('#logoutBtn').onclick = ()=>{ sessionStorage.removeItem(PW_KEY); password=''; show('login'); };
+/* ---------- auth ---------- */
+$('#loginForm').addEventListener('submit', e => { e.preventDefault(); $('#loginErr').textContent = ''; password = $('#pw').value; sessionStorage.setItem(PW, password); load(); });
+$('#logoutBtn').onclick = () => { sessionStorage.removeItem(PW); password = ''; show('login'); };
 $('#reloadPrev').onclick = refreshPreview;
 
 password ? load() : show('login');
