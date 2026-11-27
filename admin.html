@@ -11,6 +11,7 @@
   :root{--bg:#F5F4F0;--card:#fff;--tx:#26215C;--mut:#6B6A66;--line:#E2E0D8;--accent:#534AB7;--accentBg:#EEEDFE;--danger:#C2362F;--ok:#1D9E75;color-scheme:light}
   @media (prefers-color-scheme:dark){:root{--bg:#1A1740;--card:#26215C;--tx:#EEEDFE;--mut:#AFA9EC;--line:#3C3489;--accent:#CECBF6;--accentBg:#3C3489;--danger:#F09595;color-scheme:dark}}
   *{box-sizing:border-box}
+  [hidden]{display:none!important}
   body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:14px}
   button,input,select,textarea{font:inherit;color:inherit}
   .wrap{max-width:1240px;margin:0 auto;padding:18px 16px 80px}
@@ -71,6 +72,10 @@
   .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
   .iconprev{display:flex;gap:8px;align-items:center}
   .iconprev i{font-size:22px;width:38px;height:38px;display:grid;place-items:center;border-radius:10px;flex:none}
+  .picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:4px;max-height:150px;overflow:auto;padding:6px;border:1px solid var(--line);border-radius:9px;margin-top:6px}
+  .picker button{border:1px solid transparent;background:none;border-radius:8px;height:36px;font-size:19px;cursor:pointer;color:var(--tx)}
+  .picker button:hover{background:var(--accentBg)}
+  .picker button.on{border-color:var(--accent);background:var(--accentBg);color:var(--accent)}
   .login{max-width:380px;margin:14vh auto;padding:26px}
   .login h1{font-size:19px;margin:0 0 6px}
   .login p{color:var(--mut);margin:0 0 16px}
@@ -124,8 +129,8 @@
         </select>
       </label>
       <label class="f-section">Section
-        <input name="section" list="sectionList" placeholder="Pinned tools">
-        <datalist id="sectionList"></datalist>
+        <select id="sectionSel"></select>
+        <input name="section" id="sectionNew" placeholder="New section name" hidden>
       </label>
     </div>
     <label>Title <input name="title" required placeholder="Inventory system"></label>
@@ -133,8 +138,9 @@
     <label class="f-desc">Description <span class="hint">Shown on tall and wide tiles, and in list rows</span>
       <input name="description" placeholder="Find parts and tools"></label>
     <label class="f-icon">Icon <span class="hint">Any <a href="https://tabler.io/icons" target="_blank" rel="noopener">Tabler icon</a> name</span>
-      <div class="iconprev"><i class="ti" id="iconPrev"></i><input name="icon" list="iconList" placeholder="box"></div>
-      <datalist id="iconList"></datalist>
+      <div class="iconprev"><i class="ti" id="iconPrev"></i><input name="icon" placeholder="Leave blank for automatic" autocomplete="off">
+        <button class="btn sm" type="button" id="browseIcons">Browse</button></div>
+      <div class="picker" id="iconPicker" hidden></div>
     </label>
     <div class="f-size"><label>Tile size</label><div class="seg" id="sizeSeg" style="margin-top:5px"></div></div>
     <div class="f-color"><label>Color</label><div class="swatches" id="colorSeg" style="margin-top:5px"></div></div>
@@ -145,7 +151,7 @@
     <div class="foot">
       <button class="btn danger" type="button" id="delInDlg" style="margin-right:auto"><i class="ti ti-trash"></i> Delete</button>
       <button class="btn" type="button" id="cancelLink">Cancel</button>
-      <button class="btn primary" type="submit">Save link</button>
+      <button class="btn primary" type="submit" id="saveLinkBtn">Save link</button>
     </div>
   </form>
 </dialog>
@@ -224,7 +230,6 @@ function sizeSeg(l) {
 }
 
 function render() {
-  $('#sectionList').innerHTML = [...new Set(links.map(l => l.section).filter(Boolean))].map(s => `<option value="${esc(s)}">`).join('');
   const gs = groups();
   if (!gs.length) { $('#list').innerHTML = '<div class="card empty">Add your first link to start building the page.</div>'; return; }
   $('#list').innerHTML = gs.map(g => `
@@ -264,6 +269,7 @@ async function saveLink(l, msg) {
 
 $('#list').addEventListener('click', async e => {
   const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  if (document.body.classList.contains('busy') && b.dataset.act !== 'edit') { e.preventDefault(); return; }
   const row = b.closest('.row'); if (!row) return;
   const l = links.find(x => x.id === row.dataset.id);
   const act = b.dataset.act;
@@ -282,6 +288,15 @@ $('#list').addEventListener('click', async e => {
   }
 });
 
+async function placeAtEndOfSection(item) {
+  links = links.filter(x => x !== item);
+  const key = x => x.type === 'social' ? '\u0000social' : (x.section || 'More links');
+  let at = -1;
+  links.forEach((x, i) => { if (key(x) === key(item)) at = i; });
+  links.splice(at === -1 ? links.length : at + 1, 0, item);
+  await api('reorder', { ids: links.map(x => x.id) });
+}
+
 async function removeLink(l) {
   if (!confirm(`Delete “${l.title}”? This can’t be undone.`)) return false;
   try { await api('delete', { id: l.id }); links = links.filter(x => x !== l); render(); toast('Link deleted'); refreshPreview(); return true; }
@@ -291,10 +306,47 @@ async function removeLink(l) {
 /* ---------- link dialog ---------- */
 const lf = $('#linkForm');
 let draft = {};
-$('#iconList').innerHTML = A2R.ICONS.map(i => `<option value="${i}">`).join('');
+
+const NEW_SEC = '__new__';
+function sectionNames(type) {
+  // Sections whose display type matches first, then the rest
+  const all = groups().filter(g => g.type !== 'social');
+  const same = all.filter(g => g.type === type).map(g => g.name);
+  const other = all.filter(g => g.type !== type).map(g => g.name);
+  return { same, other };
+}
+function fillSections(current) {
+  const { same, other } = sectionNames(lf.elements.type.value);
+  const opt = n => `<option value="${esc(n)}">${esc(n)}</option>`;
+  let html = '';
+  if (same.length) html += `<optgroup label="Same style">${same.map(opt).join('')}</optgroup>`;
+  if (other.length) html += `<optgroup label="Other sections">${other.map(opt).join('')}</optgroup>`;
+  html += `<option value="${NEW_SEC}">+ New section…</option>`;
+  const sel = $('#sectionSel');
+  sel.innerHTML = html;
+  const names = same.concat(other);
+  if (current && names.includes(current)) sel.value = current;
+  else if (current) { sel.value = NEW_SEC; }
+  else sel.value = same[0] || names[0] || NEW_SEC;
+  $('#sectionNew').hidden = sel.value !== NEW_SEC;
+  $('#sectionNew').value = sel.value === NEW_SEC ? (current || '') : sel.value;
+}
+$('#sectionSel').onchange = () => {
+  const v = $('#sectionSel').value;
+  $('#sectionNew').hidden = v !== NEW_SEC;
+  $('#sectionNew').value = v === NEW_SEC ? '' : v;
+  if (v === NEW_SEC) $('#sectionNew').focus();
+};
+function paintPicker() {
+  const cur = lf.elements.icon.value.trim();
+  $('#iconPicker').innerHTML = A2R.ICONS.map(i =>
+    `<button type="button" class="${i === cur ? 'on' : ''}" data-icon="${i}" title="${i}" aria-label="${i}"><i class="ti ti-${i}"></i></button>`).join('');
+}
+$('#browseIcons').onclick = () => { const p = $('#iconPicker'); p.hidden = !p.hidden; if (!p.hidden) paintPicker(); };
+$('#iconPicker').onclick = e => { const b = e.target.closest('[data-icon]'); if (!b) return; lf.elements.icon.value = b.dataset.icon; paintPicker(); paintDialog(); };
 
 function paintDialog() {
-  const t = lf.type.value;
+  const t = lf.elements.type.value;
   lf.querySelector('.f-section').hidden = t === 'social';
   lf.querySelector('.f-desc').hidden = t === 'social';
   lf.querySelector('.f-icon').hidden = t === 'video';
@@ -304,49 +356,68 @@ function paintDialog() {
   $('#colorSeg').innerHTML = swatches(draft).replace(/^<div class="swatches">|<\/div>$/g, '');
   const c = A2R.color(draft.color);
   const ip = $('#iconPrev');
-  ip.className = 'ti ti-' + (lf.icon.value.trim() || iconFor({ url: lf.url.value }));
+  ip.className = 'ti ti-' + (lf.elements.icon.value.trim() || iconFor({ url: lf.elements.url.value }));
   ip.style.background = c[0]; ip.style.color = c[1];
 }
-['type', 'icon', 'url'].forEach(n => lf[n].addEventListener('input', paintDialog));
+['icon', 'url'].forEach(n => lf.elements[n].addEventListener('input', paintDialog));
+lf.elements.type.addEventListener('change', () => {
+  const sel = $('#sectionSel').value;
+  fillSections(sel === NEW_SEC ? $('#sectionNew').value : (draft.id ? sel : ''));
+  paintDialog();
+});
 $('#sizeSeg').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { e.preventDefault(); draft.size = b.dataset.v; paintDialog(); } };
 $('#colorSeg').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { e.preventDefault(); draft.color = b.dataset.v; paintDialog(); } };
 
 function openLink(l) {
   lf.reset(); $('#linkErr').textContent = '';
-  draft = l ? { ...l } : { type: 'tile', section: 'Pinned tools', size: 'small', color: 'mint', active: true };
+  draft = l ? { ...l } : { type: 'tile', size: 'small', color: 'mint', active: true };
   $('#dlgTitle').textContent = l ? 'Edit link' : 'Add link';
   $('#delInDlg').hidden = !l;
-  ['id', 'type', 'section', 'title', 'url', 'description', 'icon'].forEach(k => lf[k].value = draft[k] ?? '');
-  lf.active.checked = draft.active !== false;
-  paintDialog(); $('#linkDlg').showModal(); lf.title.focus();
+  ['id', 'type', 'title', 'url', 'description', 'icon'].forEach(k => lf.elements[k].value = draft[k] ?? '');
+  lf.elements.active.checked = draft.active !== false;
+  fillSections(l ? l.section : '');
+  $('#iconPicker').hidden = true;
+  paintDialog(); $('#linkDlg').showModal(); lf.elements.title.focus();
 }
 $('#addBtn').onclick = () => openLink(null);
 $('#cancelLink').onclick = () => $('#linkDlg').close();
-$('#delInDlg').onclick = async () => { const l = links.find(x => x.id === lf.id.value); if (l && await removeLink(l)) $('#linkDlg').close(); };
+$('#delInDlg').onclick = async () => { const l = links.find(x => x.id === lf.elements.id.value); if (l && await removeLink(l)) $('#linkDlg').close(); };
 
 lf.addEventListener('submit', async e => {
   e.preventDefault();
   const f = Object.fromEntries(new FormData(lf));
-  const link = { ...draft, ...f, active: lf.active.checked };
+  const sel = $('#sectionSel').value;
+  f.section = (sel === NEW_SEC ? $('#sectionNew').value : sel).trim();
+  const link = { ...draft, ...f, active: lf.elements.active.checked };
+  if (link.type === 'social') link.section = '';
+  if (link.type !== 'tile') link.size = draft.size || 'small';
   if (!link.title.trim()) return $('#linkErr').textContent = 'Enter a title.';
   if (safeUrl(link.url) === '#') return $('#linkErr').textContent = 'Enter a URL starting with https://, mailto: or tel:';
-  if (link.type !== 'social' && !link.section.trim()) link.section = link.type === 'video' ? 'Watch' : 'More links';
+  if (link.type !== 'social' && !link.section) {
+    if (sel === NEW_SEC) return $('#linkErr').textContent = 'Enter a name for the new section.';
+    link.section = link.type === 'video' ? 'Watch' : 'More links';
+  }
+  const old = link.id ? links.find(x => x.id === link.id) : null;
+  const moved = !old || old.section !== link.section || old.type !== link.type;
+  const btn = $('#saveLinkBtn'); btn.disabled = true;
   try {
     if (link.id) {
       await api('update', { link });
-      Object.assign(links.find(x => x.id === link.id), link); toast('Link saved');
+      Object.assign(old, link); toast('Link saved');
     } else {
       delete link.id; const d = await api('create', { link }); links.push(d.link); toast('Link added');
     }
+    if (moved) await placeAtEndOfSection(link.id ? old : links[links.length - 1]);
     $('#linkDlg').close(); render(); refreshPreview();
   } catch (err) { $('#linkErr').textContent = err.message; }
+  finally { btn.disabled = false; }
 });
 
 /* ---------- profile dialog ---------- */
 const sf = $('#setForm');
 $('#settingsBtn').onclick = () => {
-  ['name', 'bio', 'avatar', 'footer'].forEach(k => sf[k].value = settings[k] || '');
-  sf.theme.value = settings.theme || 'auto';
+  ['name', 'bio', 'avatar', 'footer'].forEach(k => sf.elements[k].value = settings[k] || '');
+  sf.elements.theme.value = settings.theme || 'auto';
   $('#setDlg').showModal();
 };
 $('#cancelSet').onclick = () => $('#setDlg').close();
@@ -357,7 +428,12 @@ sf.addEventListener('submit', async e => {
 });
 
 /* ---------- auth ---------- */
-$('#loginForm').addEventListener('submit', e => { e.preventDefault(); $('#loginErr').textContent = ''; password = $('#pw').value; sessionStorage.setItem(PW, password); load(); });
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault(); $('#loginErr').textContent = '';
+  const b = e.submitter; if (b) b.disabled = true;
+  password = $('#pw').value; sessionStorage.setItem(PW, password);
+  await load(); if (b) b.disabled = false; $('#pw').value = '';
+});
 $('#logoutBtn').onclick = () => { sessionStorage.removeItem(PW); password = ''; show('login'); };
 $('#reloadPrev').onclick = refreshPreview;
 
