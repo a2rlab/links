@@ -64,7 +64,7 @@
   /* Layout */
   main{display:grid;gap:22px;padding:18px 16px 8px}
   @media (min-width:900px){
-    main{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:28px;padding:28px 24px 8px;align-items:start}
+    main{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:32px;padding:28px 24px 8px;align-items:start}
     header{padding:18px 24px}
     .theme-btn{width:auto;border-radius:999px;padding:0 14px;gap:6px;display:flex;align-items:center;font-size:13px}
     .theme-btn span{display:inline}
@@ -73,8 +73,8 @@
   h2{font-size:14px;font-weight:600;color:var(--hd);margin:0 0 10px}
 
   /* Bento tiles */
+  /* Always 2 columns so phone and desktop arrange tiles identically */
   .bento{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:82px;gap:10px;grid-auto-flow:dense}
-  @media (min-width:560px){ .bento{grid-template-columns:repeat(3,minmax(0,1fr))} }
   .tile{
     border-radius:18px;padding:12px;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between;gap:4px;
     background:var(--c-bg);color:var(--c-tx);min-width:0;transition:transform .12s ease;
@@ -88,6 +88,7 @@
   .tile.wide{grid-column:span 2;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px}
   .tile.wide i{font-size:28px}
   .tile.small small{display:none}
+  @media (min-width:900px){ .bento{grid-auto-rows:96px;gap:12px} }
 
   /* Videos: swipe row on mobile, list on desktop */
   .videos{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}
@@ -216,8 +217,8 @@ function render(data) {
   // Group by section, keeping the order of first appearance. A section's style follows its first item's type.
   const sections = [];
   links.filter(l => l.type !== 'social').forEach(l => {
-    const name = l.section || 'More links';
-    let sec = sections.find(x => x.name === name);
+    const name = String(l.section || '').replace(/\s+/g, ' ').trim() || 'More links';
+    let sec = sections.find(x => x.name.toLowerCase() === name.toLowerCase());
     if (!sec) sections.push(sec = { name, type: l.type, items: [] });
     sec.items.push(l);
   });
@@ -233,7 +234,9 @@ function render(data) {
   });
 
   document.getElementById('main').innerHTML = (left.length || right.length)
-    ? `<div class="col">${left.join('')}</div><div class="col">${right.join('')}</div>`
+    ? (left.length && right.length
+        ? `<div class="col">${left.join('')}</div><div class="col">${right.join('')}</div>`
+        : `<div class="col" style="grid-column:1 / -1;max-width:680px;width:100%;margin:0 auto">${left.concat(right).join('')}</div>`)
     : '<p class="msg">No links yet.</p>';
 }
 
